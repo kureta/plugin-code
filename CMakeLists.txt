@@ -1,6 +1,6 @@
 ####################################################################################################
 # basic project config
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 set(project_name "Performer")
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules ${CMAKE_MODULE_PATH})
 set(CMAKE_CXX_STANDARD 17)
@@ -20,7 +20,7 @@ endif()
 # Windows - puts redistributable DLLs in install directory
 include(InstallRequiredSystemLibraries)
 
-# Environment variables
+# (kureta) Environment variables
 set(SC_PATH /home/devuser/lib/supercollider)
 set(CMAKE_INSTALL_PREFIX /workspaces/plugin-code/packages)
 ####################################################################################################
@@ -44,7 +44,7 @@ endif()
 
 message(STATUS "Install directory set to: ${CMAKE_INSTALL_PREFIX}")
 
-# Find LibTorch C++
+# (kureta) Find LibTorch C++
 set(CMAKE_MODULE_PATH "/home/devuser/lib/libtorch" ${CMAKE_MODULE_PATH})
 set(CMAKE_PREFIX_PATH "/home/devuser/lib/libtorch" ${CMAKE_PREFIX_PATH})
 set(TORCH_CUDA_ARCH_LIST "7.5;5.2")
@@ -91,6 +91,7 @@ sc_add_server_plugin(
 # End target Performer
 ####################################################################################################
 
+# (kureta) Link libtorch
 target_link_libraries(Performer_scsynth "${TORCH_LIBRARIES}")
 
 ####################################################################################################
