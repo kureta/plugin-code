@@ -12,7 +12,7 @@ namespace Performer
     Print("Loading pre-trained model...");
     try
     {
-      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/notebooks/cello_controller.pt");
+      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/notebooks/cello_controller-cpu.pt");
     }
     catch (const c10::Error &e)
     {
@@ -67,11 +67,15 @@ namespace Performer
   {
     const float *frequency = in(Frequency);
     const float *loudnessDb = in(LoudnessDb);
+    float *outbuf_harm_amp = out(0);
 
-    f0.fill_(*frequency);
-    amp.fill_(*loudnessDb);
-
-    infer();
+    for (int i = 0; i < nSamples; ++i)
+    {
+      f0.fill_(frequency[i]);
+      amp.fill_(loudnessDb[i]);
+      infer();
+      outbuf_harm_amp[i] = harm_amp[0][0][0].item<float>();
+    }
   }
 } // namespace Performer
 
