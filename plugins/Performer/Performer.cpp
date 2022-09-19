@@ -19,7 +19,7 @@ namespace Performer
       Print("Failed to load model.");
     }
 
-    // Initialize tensors
+    // Initialize tensors. CPU works fine. Will try CUDA later.
     auto options =
         torch::TensorOptions()
             .dtype(torch::kFloat32)
@@ -38,14 +38,13 @@ namespace Performer
 
     // Set the UGen's calculation function depending on the rate of the first
     // argument (frequency)
-    if (inRate(Frequency) == calc_FullRate)
+    if (inRate(Frequency) == calc_FullRate || inRate(LoudnessDb) == calc_FullRate)
     {
       throw std::invalid_argument("Only works at control rate!");
     }
     else
     {
       mCalcFunc = make_calc_function<Performer, &Performer::next_k>();
-
       // Calculate first value
       next_k(1);
     };
@@ -66,6 +65,12 @@ namespace Performer
   // Calculation function for control rate frequency input
   void Performer::next_k(int nSamples)
   {
+    const float *frequency = in(Frequency);
+    const float *loudnessDb = in(LoudnessDb);
+
+    f0.fill_(*frequency);
+    amp.fill_(*loudnessDb);
+
     infer();
   }
 } // namespace Performer

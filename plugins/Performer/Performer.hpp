@@ -18,7 +18,8 @@ namespace Performer
 
         enum Inputs
         {
-            Frequency
+            Frequency,
+            LoudnessDb,
         };
         // Member variables
         torch::jit::script::Module ctrl;

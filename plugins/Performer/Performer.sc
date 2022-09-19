@@ -1,12 +1,14 @@
 Performer : UGen {
-	*kr { |frequency=1.0|
-		^this.multiNew('control', frequency);
+	*kr { |frequency = 440.0, loudnessDb = -30.0|
+		^this.multiNew('control', frequency, loudnessDb);
 	}
 
 	checkInputs {
-
 		// Input 0 is frequency
 		if(inputs.at(0) == \audio, {
+			"You're not supposed to use audio rate here".error
+		});
+		if(inputs.at(1) == \audio, {
 			"You're not supposed to use audio rate here".error
 		});
 
