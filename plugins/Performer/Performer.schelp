@@ -1,5 +1,5 @@
-class:: RampUpGen
-summary:: Ramping up values
+class:: Performer
+summary:: Real-time neural performer
 related:: TODO
 categories:: UGens>TODO
 
@@ -21,6 +21,6 @@ examples::
 
 code::
 
-{ RampUpGen.ar(/* TODO */) }.play
+{ Performer.kr(/* TODO */) }.play
 
 ::

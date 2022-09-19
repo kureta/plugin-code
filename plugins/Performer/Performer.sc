@@ -1,8 +1,4 @@
-RampUpGen : UGen {
-	*ar { |frequency=1.0|
-		^this.multiNew('audio', frequency);
-	}
-
+Performer : UGen {
 	*kr { |frequency=1.0|
 		^this.multiNew('control', frequency);
 	}
