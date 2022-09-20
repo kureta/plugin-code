@@ -12,7 +12,7 @@ namespace Performer
     Print("Loading pre-trained model...");
     try
     {
-      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/notebooks/cello_controller-cpu.pt");
+      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cpu-controller.pt");
     }
     catch (const c10::Error &e)
     {
@@ -44,9 +44,9 @@ namespace Performer
     }
     else
     {
-      mCalcFunc = make_calc_function<Performer, &Performer::next_k>();
+      mCalcFunc = make_calc_function<Performer, &Performer::next>();
       // Calculate first value
-      next_k(1);
+      next(1);
     };
   }
 
@@ -63,7 +63,7 @@ namespace Performer
   }
 
   // Calculation function for control rate frequency input
-  void Performer::next_k(int nSamples)
+  void Performer::next(int nSamples)
   {
     const float *frequency = in(Frequency);
     const float *loudnessDb = in(LoudnessDb);

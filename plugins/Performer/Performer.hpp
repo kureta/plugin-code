@@ -13,7 +13,7 @@ namespace Performer
 
     private:
         // Calc function
-        void next_k(int nSamples);
+        void next(int nSamples);
         void infer();
 
         enum Inputs

@@ -1,5 +1,5 @@
 Performer : UGen {
-	*kr { |frequency = 440.0, loudnessDb = -30.0|
+	*ar { |frequency = 440.0, loudnessDb = -30.0|
 		^this.multiNew('control', frequency, loudnessDb);
 	}
 

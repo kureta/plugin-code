@@ -12,7 +12,7 @@
 	var l_irbuffer, r_irbuffer, bufsize;
 
 	l_irbuffer = Buffer.readChannel(s,
-		"/home/kureta/Documents/repos/performer/notebooks/cello_controller-ir.wav",
+		"/home/kureta/Documents/repos/performer/out/cello-ir.wav",
 		channels: [0]
 	);
 	s.sync;
@@ -26,7 +26,7 @@
 	l_irbuffer.free;
 
 	r_irbuffer = Buffer.readChannel(s,
-		"/home/kureta/Documents/repos/performer/notebooks/cello_controller-ir.wav",
+		"/home/kureta/Documents/repos/performer/out/cello-ir.wav",
 		channels: [1]
 	);
 	s.sync;
@@ -41,14 +41,10 @@
 
 // Setup Controller and DSP elements
 ({
-	var input = SinOsc.ar(
-		SinOsc.kr(4.0, 0.0, 10.0, 440.0),
-		0.0,
-		Performer.kr(
+	var input = Performer.ar(
 			SinOsc.kr(1.0, 0.0, 10.0, 440.0),
-			Phaser.kr(0.333, 0.0, 70.0, -80.0)
-		)
-	);
+			SinOsc.kr(0.333, 0.0, 25.0, -50.0)
+		);
 	var left = PartConv.ar(input, ~fftsize, ~l_irspectrum.bufnum);
 	var right = PartConv.ar(input, ~fftsize, ~r_irspectrum.bufnum);
 	[left, right];
