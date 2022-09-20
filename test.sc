@@ -39,14 +39,23 @@
 }.fork;
 )
 
+({Loudness.kr(
+	FFT(LocalBuf(1024), SoundIn.ar(0))
+)}.play;)
+
 // Setup Controller and DSP elements
+// SinOsc.kr(0.333, 0.0, 25.0, -60.0)
 ({
-	var input = Performer.ar(
-			SinOsc.kr(1.0, 0.0, 10.0, 440.0),
-			SinOsc.kr(0.333, 0.0, 25.0, -50.0)
-		);
-	var left = PartConv.ar(input, ~fftsize, ~l_irspectrum.bufnum);
-	var right = PartConv.ar(input, ~fftsize, ~r_irspectrum.bufnum);
+	var mic, input, left, right, freq, hasFreq;
+	mic = SoundIn.ar(0);
+	# freq, hasFreq = Pitch.kr(mic, ampThreshold: 0.01, median: 7);
+	input = Performer.ar(
+		freq,
+		Loudness.kr(FFT(LocalBuf(1024), mic)).log2 * 10 - 60
+	);
+	// var input = SinOsc.ar() * 0.01;
+	left = PartConv.ar(input, ~fftsize, ~l_irspectrum.bufnum);
+	right = PartConv.ar(input, ~fftsize, ~r_irspectrum.bufnum);
 	[left, right];
 }.play
 )

@@ -5,14 +5,17 @@ static InterfaceTable *ft;
 namespace Performer
 
 {
-
+  using namespace torch::indexing;
   Performer::Performer()
   {
     // Load pre-trained model
     Print("Loading pre-trained model...");
     try
     {
-      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cpu-controller.pt");
+      c10::InferenceMode inference;
+      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-controller.pt");
+      harmonics = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-harmonics.pt");
+      noise_gen = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-noise.pt");
     }
     catch (const c10::Error &e)
     {
@@ -20,21 +23,21 @@ namespace Performer
     }
 
     // Initialize tensors. CPU works fine. Will try CUDA later.
+    c10::InferenceMode inference;
     auto options =
         torch::TensorOptions()
             .dtype(torch::kFloat32)
-            // .device(torch::kCUDA, 0)
+            .device(torch::kCUDA, 0)
             .requires_grad(false);
 
-    f0 = torch::randn({1, 1, 1}, options);
-    amp = torch::randn({1, 1, 1}, options);
+    f0 = torch::randn({1, 1, 2}, options);
+    f0.index_put_({0, 0, 0}, old_freq);
+    amp = torch::randn({1, 1, 2}, options);
+    amp.index_put_({0, 0, 0}, old_amp);
     hidden = torch::randn({3, 1, 512}, options);
-    harm_amp = torch::randn({1, 1, 1}, options);
-    overtones = torch::randn({1, 1, 180, 1}, options);
-    noise = torch::randn({1, 1, 195, 1}, options);
-
-    // First run to warm things up
-    infer();
+    harm_amp = torch::randn({1, 1, 2}, options);
+    overtones = torch::randn({1, 1, 180, 2}, options);
+    noise = torch::randn({1, 1, 195, 2}, options);
 
     // Set the UGen's calculation function depending on the rate of the first
     // argument (frequency)
@@ -65,16 +68,28 @@ namespace Performer
   // Calculation function for control rate frequency input
   void Performer::next(int nSamples)
   {
-    const float *frequency = in(Frequency);
-    const float *loudnessDb = in(LoudnessDb);
-    float *outbuf_harm_amp = out(0);
+    const float frequency = in0(Frequency);
+    const float loudnessDb = in0(LoudnessDb);
+    float *outbuf = out(0);
 
     for (int i = 0; i < nSamples; ++i)
     {
-      f0.fill_(frequency[i]);
-      amp.fill_(loudnessDb[i]);
-      infer();
-      outbuf_harm_amp[i] = harm_amp[0][0][0].item<float>();
+      if (consumed == 192)
+      {
+        consumed = 0;
+        c10::InferenceMode inference;
+        f0.index_put_({0, 0, 1}, frequency);
+        amp.index_put_({0, 0, 1}, loudnessDb);
+
+        infer();
+
+        osc = harmonics.get_method("forward_live")({f0, harm_amp, overtones}).toTensor().to(torch::kCPU)[0][0] + noise_gen({noise}).toTensor().to(torch::kCPU)[0][0];
+
+        f0 = f0.flip(-1);
+        amp = amp.flip(-1);
+      }
+      outbuf[i] = osc[consumed].item<float>();
+      consumed += 1;
     }
   }
 } // namespace Performer

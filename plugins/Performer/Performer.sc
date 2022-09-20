@@ -1,6 +1,6 @@
 Performer : UGen {
 	*ar { |frequency = 440.0, loudnessDb = -30.0|
-		^this.multiNew('control', frequency, loudnessDb);
+		^this.multiNew('audio', frequency, loudnessDb);
 	}
 
 	checkInputs {

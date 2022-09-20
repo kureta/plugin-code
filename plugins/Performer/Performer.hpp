@@ -23,6 +23,8 @@ namespace Performer
         };
         // Member variables
         torch::jit::script::Module ctrl;
+        torch::jit::script::Module harmonics;
+        torch::jit::script::Module noise_gen;
 
         // State variables
         at::Tensor f0;
@@ -31,6 +33,13 @@ namespace Performer
         at::Tensor harm_amp;
         at::Tensor overtones;
         at::Tensor noise;
+
+        at::Tensor osc;
+
+        float old_freq = 110.0;
+        float old_amp = -90.0;
+
+        int consumed = 192;
     };
 
 } // namespace Performer
