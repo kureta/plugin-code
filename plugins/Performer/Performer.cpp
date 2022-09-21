@@ -13,9 +13,9 @@ namespace Performer
     try
     {
       c10::InferenceMode inference;
-      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-controller.pt");
-      harmonics = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-harmonics.pt");
-      noise_gen = torch::jit::load("/home/kureta/Documents/repos/performer/out/cello-cuda-noise.pt");
+      ctrl = torch::jit::load("/home/kureta/Documents/repos/performer/out/violin-cuda-controller.pt");
+      harmonics = torch::jit::load("/home/kureta/Documents/repos/performer/out/violin-cuda-harmonics.pt");
+      noise_gen = torch::jit::load("/home/kureta/Documents/repos/performer/out/violin-cuda-noise.pt");
     }
     catch (const c10::Error &e)
     {

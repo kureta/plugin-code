@@ -12,7 +12,7 @@
 	var l_irbuffer, r_irbuffer, bufsize;
 
 	l_irbuffer = Buffer.readChannel(s,
-		"/home/kureta/Documents/repos/performer/out/cello-ir.wav",
+		"/home/kureta/Documents/repos/performer/out/violin-ir.wav",
 		channels: [0]
 	);
 	s.sync;
@@ -26,7 +26,7 @@
 	l_irbuffer.free;
 
 	r_irbuffer = Buffer.readChannel(s,
-		"/home/kureta/Documents/repos/performer/out/cello-ir.wav",
+		"/home/kureta/Documents/repos/performer/out/violin-ir.wav",
 		channels: [1]
 	);
 	s.sync;
@@ -39,12 +39,7 @@
 }.fork;
 )
 
-({Loudness.kr(
-	FFT(LocalBuf(1024), SoundIn.ar(0))
-)}.play;)
-
 // Setup Controller and DSP elements
-// SinOsc.kr(0.333, 0.0, 25.0, -60.0)
 ({
 	var mic, input, left, right, freq, hasFreq;
 	mic = SoundIn.ar(0);
@@ -59,3 +54,38 @@
 	[left, right];
 }.play
 )
+
+// Setup Controller and DSP elements
+(
+x = {
+	arg t_gate=0, freq=440.0;
+	var env, dry, left, right, hasFreq;
+	env = EnvGen.kr(Env.perc(0.01, 2.0).range(-110, -36) , t_gate);
+	dry = Performer.ar(
+		freq + SinOsc.kr(5, 0, freq * 1.014545335 - freq),
+		env
+	);
+	// var dry = SinOsc.ar() * 0.01;
+	left = PartConv.ar(dry, ~fftsize, ~l_irspectrum.bufnum);
+	right = PartConv.ar(dry, ~fftsize, ~r_irspectrum.bufnum);
+	[left, right];
+}.play;
+)
+
+(
+p = Pbind(
+    \type, \set,    // This tells it we'll be setting parameters of an existing node...
+    \id, x.nodeID,    // ...this tells it whose parameters we'll be setting
+    \args, #[\t_gate, \freq],  // and this tells it which parameters to set
+	\freq, Pwhite(440, 1670),
+    \dur, 0.125,
+	\t_gate, Pwhite(1, 1)
+).play;
+)
+(
+p.stop;
+x.free;
+)
+
+
+
